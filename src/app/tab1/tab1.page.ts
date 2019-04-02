@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
-import { GoogleMap } from '@ionic-native/google-maps/ngx';
 import { Platform } from '@ionic/angular';
 import { MapService } from '../services/map/map.service';
 
@@ -13,14 +12,13 @@ import { MapService } from '../services/map/map.service';
 
 export class Tab1Page implements OnInit{
 
-  map: GoogleMap;
   location: {
     latitude: number,
     longitude: number
   };
 
 
-  @ViewChild('map') mapElement: ElementRef; // for JS api
+  @ViewChild('map') mapElement: ElementRef; // for #map modifying based on chosen service
 
   constructor(private platform: Platform, public geolocation: Geolocation, public mapservice: MapService){
   }
@@ -34,14 +32,6 @@ export class Tab1Page implements OnInit{
     }, 3000);  }
   
   loadMap(){
-    // let mapOptions = {
-    //   zoom: 10,
-    //   mapTypeControl: false,
-    //   streetViewControl: false,
-    //   fullscreenControl: false
-    // }
-
-    // this.map = GoogleMaps.create('map',mapOptions);
     let locopt={
       enableHighAccuracy: true,
       timeout: 25000
@@ -54,18 +44,10 @@ export class Tab1Page implements OnInit{
         longitude: position.coords.longitude
       };
 
-      this.mapservice.init(this.location, this.mapElement, "js");
+      this.mapservice.init(this.location, this.mapElement, "js"); // to use native cordova version change js to native 
 
      }).catch((error) => {
        console.log('Error getting location', error);
      });
   }
-    // LocationService.getMyLocation(locopt).then(loc=>{
-    //   let latlng= loc.latLng;
-    //   this.map.setCameraTarget(latlng);
-    //   this.map.setCameraZoom(14);
-    // }).catch(error =>{
-    //   console.log('Error getting location', error);
-    // });
-  
 }
