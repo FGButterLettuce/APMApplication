@@ -1,9 +1,8 @@
-import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { GoogleMap } from '@ionic-native/google-maps/ngx';
 import { Platform } from '@ionic/angular';
-
-
-declare var google: any;
+import { MapService } from '../services/map/map.service';
 
 @Component({
   selector: 'app-tab1',
@@ -13,31 +12,60 @@ declare var google: any;
 
 
 export class Tab1Page implements OnInit{
-  map: any;
-  @ViewChild('map') mapElement: ElementRef;
-  constructor(private geolocation: Geolocation, private platform: Platform){
 
+  map: GoogleMap;
+  location: {
+    latitude: number,
+    longitude: number
+  };
+
+
+  @ViewChild('map') mapElement: ElementRef; // for JS api
+
+  constructor(private platform: Platform, public geolocation: Geolocation, public mapservice: MapService){
   }
 
-  ngOnInit() {
-    this.platform.ready().then(() => {
-      let mapOptions = {
-        zoom: 10,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false
-      }
+  async ngOnInit() {
+    await this.platform.ready();
+    setTimeout(() => {
 
-      this.map = new google.maps.Map(this.mapElement.nativeElement,mapOptions);
+      this.loadMap();
 
-      this.geolocation.getCurrentPosition().then(loc=>{
-        let latlng= new google.maps.LatLng(loc.coords.latitude,loc.coords.longitude);
-        this.map.setCenter(latlng);
-        this.map.setZoom(14);
-      }).catch(error =>{
-        console.log('Error getting location', error);
-      });
-    });
+    }, 3000);  }
+  
+  loadMap(){
+    // let mapOptions = {
+    //   zoom: 10,
+    //   mapTypeControl: false,
+    //   streetViewControl: false,
+    //   fullscreenControl: false
+    // }
+
+    // this.map = GoogleMaps.create('map',mapOptions);
+    let locopt={
+      enableHighAccuracy: true,
+      timeout: 25000
+    }
+
+    this.geolocation.getCurrentPosition(locopt).then((position) => {
+
+      this.location = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      };
+
+      this.mapservice.init(this.location, this.mapElement, "js");
+
+     }).catch((error) => {
+       console.log('Error getting location', error);
+     });
   }
+    // LocationService.getMyLocation(locopt).then(loc=>{
+    //   let latlng= loc.latLng;
+    //   this.map.setCameraTarget(latlng);
+    //   this.map.setCameraZoom(14);
+    // }).catch(error =>{
+    //   console.log('Error getting location', error);
+    // });
+  
 }
