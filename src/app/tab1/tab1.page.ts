@@ -29,12 +29,12 @@ export class Tab1Page implements OnInit{
 
       this.loadMap();
 
-    }, 3000);  }
+    }, 3000);  } // allows for init time of JS map(slower), for native we can scrap the timer BUT we only use JS
   
   loadMap(){
     let locopt={
       enableHighAccuracy: true,
-      timeout: 25000
+      timeout: 25000     
     }
 
     this.geolocation.getCurrentPosition(locopt).then((position) => {
@@ -45,7 +45,11 @@ export class Tab1Page implements OnInit{
       };
 
       this.mapservice.init(this.location, this.mapElement, "js"); // to use native cordova version change js to native 
-
+      //DONT MESS WITH IT IF YOU DONT KNOW WHAT YOURE DOING, it could break the build and i dont want to deal with that - niru
+      // native = faster but bunch of features missing / js = feature filled but slower 
+      
+      // this calls mapservice init() --> depending on string goes to either nativeserv or jsserv--> init() in jsserv/nativeserv and plops out nice baby map
+      // we use js as it has heatmap functionalities
      }).catch((error) => {
        console.log('Error getting location', error);
      });
