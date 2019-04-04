@@ -7,11 +7,38 @@
 </ion-header>
 
 <ion-content>
-  <div #map id="map">
+  <div #map id="map"></div>
 
-  </div>
-
+  <ion-fab vertical="bottom" horizontal="start" slot="fixed">
+      <ion-fab-button>
+          <ion-icon name="switch"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-list side="top">
+        <ion-fab-button>
+          CO<sub>2</sub>
+        </ion-fab-button>
+        <ion-fab-button>
+          CO
+        </ion-fab-button>
+        <ion-fab-button>
+          NH<sub>4</sub>
+        </ion-fab-button>
+        <ion-fab-button>
+          Eth
+        </ion-fab-button>
+        <ion-fab-button>
+          Tol
+        </ion-fab-button>
+        <ion-fab-button>
+          Ace
+        </ion-fab-button>
+      </ion-fab-list>
+    </ion-fab>  
 </ion-content>
-
-<!-- <ion-content>
-</ion-content> -->
+<!-- 
+<ion-button color="light" z-index="1000">CO<sub>2</sub></ion-button>
+<ion-button color="light" z-index="1000">CO</ion-button>
+<ion-button color="light" z-index="1000">NH<sub>4</sub></ion-button>
+<ion-button color="light" z-index="1000">Ethanol</ion-button>
+<ion-button color="light" z-index="1000">Toluene</ion-button>
+<ion-button color="light" z-index="1000">Acetone</ion-button> -->
