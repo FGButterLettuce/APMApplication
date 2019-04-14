@@ -12,14 +12,26 @@ import { JSService } from './services/jsmap/js.service';
 import { NativeService } from './services/native/native.service';
 
 
+import { AngularFireModule } from '@angular/fire';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
+export const fireconfig = {
+    apiKey: "AIzaSyAl3acCFwURPMeDKi7yzkKl3K9n8SZYx2s",
+    authDomain: "creationtestserve.firebaseapp.com",
+    databaseURL: "https://creationtestserve.firebaseio.com",
+    projectId: "creationtestserve",
+    storageBucket: "creationtestserve.appspot.com",
+    messagingSenderId: "393626221271"
+}
 
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule],
+  imports: [AppRoutingModule,AngularFireModule.initializeApp(fireconfig),
+    AngularFirestoreModule, BrowserModule, IonicModule.forRoot(), ],
 providers: [
     StatusBar,
     SplashScreen,

@@ -2,6 +2,9 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { Platform } from '@ionic/angular';
 import { MapService } from '../services/map/map.service';
+import { JSService } from '../services/jsmap/js.service';
+import { AngularFirestoreCollection, AngularFirestore } from '@angular/fire/firestore';
+import { Dataline } from '../classes/dataline';
 
 @Component({
   selector: 'app-tab1',
@@ -12,16 +15,43 @@ import { MapService } from '../services/map/map.service';
 
 export class Tab1Page implements OnInit{
 
+  @ViewChild('map') mapElement: ElementRef; // for #map modifying based on chosen service
+
   location: {
     latitude: number,
     longitude: number
   };
 
+  //firestore
+  collection: AngularFirestoreCollection;
+  doc: any;
 
-  @ViewChild('map') mapElement: ElementRef; // for #map modifying based on chosen service
+  constructor(private platform: Platform, public geolocation: Geolocation, public mapservice: MapService,public jsservice: JSService, public afs: AngularFirestore){
 
-  constructor(private platform: Platform, public geolocation: Geolocation, public mapservice: MapService){
   }
+
+  setHMCO(){
+    this.jsservice.CO();
+  }
+
+  setHMCO2(){
+    this.jsservice.CO2();
+  }
+  setHMNH4(){
+
+  }
+  setHMEth(){
+
+  }
+  setHMTol(){
+    this.jsservice.Ace();
+  }
+  setHMAce(){
+
+  }
+
+
+
 
   async ngOnInit() {
     await this.platform.ready();
@@ -44,7 +74,12 @@ export class Tab1Page implements OnInit{
         longitude: position.coords.longitude
       };
 
-      this.mapservice.init(this.location, this.mapElement, "js"); // to use native cordova version change js to native 
+      this.collection = this.afs.collection<Dataline>('weightage');
+      this.doc = this.collection.snapshotChanges();
+      this.jsservice.init(this.location, this.mapElement,this.doc);
+
+
+       // to use native cordova version change js to native 
       //DONT MESS WITH IT IF YOU DONT KNOW WHAT YOURE DOING, it could break the build and i dont want to deal with that - niru
       // native = faster but bunch of features missing / js = feature filled but slower 
       

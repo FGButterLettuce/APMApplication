@@ -14,22 +14,22 @@
           <ion-icon name="switch"></ion-icon>
       </ion-fab-button>
       <ion-fab-list side="top">
-        <ion-fab-button>
+        <ion-fab-button (click) = "setHMCO2()">
           CO<sub>2</sub>
         </ion-fab-button>
-        <ion-fab-button>
+        <ion-fab-button (click) = "setHMCO()" >
           CO
         </ion-fab-button>
-        <ion-fab-button>
+        <ion-fab-button (click) = "setHMNH4()">
           NH<sub>4</sub>
         </ion-fab-button>
-        <ion-fab-button>
+        <ion-fab-button (click) = "setHMEth()">
           Eth
         </ion-fab-button>
-        <ion-fab-button>
+        <ion-fab-button (click) = "setHMTol()">
           Tol
         </ion-fab-button>
-        <ion-fab-button>
+        <ion-fab-button (click) = "setHMAce()">
           Ace
         </ion-fab-button>
       </ion-fab-list>
