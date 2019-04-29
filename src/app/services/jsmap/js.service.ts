@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestoreCollection, AngularFirestore } from '@angular/fire/firestore';
-import { Dataline } from 'src/app/classes/dataline';
-import { Observable } from 'rxjs';
+
 
 declare var google;
 
@@ -29,15 +27,39 @@ export class JSService {
 
   }
 
-  async CO(){
-    this.poldata = [];
-    let pointArray = new google.maps.MVCArray(this.poldata);
-    await this.doc.subscribe((value)=>{
+  CO(){
+    let pointArrayco = new google.maps.MVCArray([]);
+     this.doc.subscribe((value)=>{
       for(let x of value){
-        pointArray.push({location: new google.maps.LatLng(x.payload.doc.data().lat,x.payload.doc.data().lon), weight: x.payload.doc.data().co});
+        pointArrayco.push({location: new google.maps.LatLng(x.payload.doc.data().lat,x.payload.doc.data().lon), weight: x.payload.doc.data().co});
       }
     });
-    this.populateData(pointArray);
+    var gradi = [
+      'rgba(0, 255, 255, 0)',
+      'rgba(0, 255, 255, 1)',
+      'rgba(0, 191, 255, 1)',
+      'rgba(0, 127, 255, 1)',
+      'rgba(0, 63, 255, 1)',
+      'rgba(0, 0, 255, 1)',
+      'rgba(0, 0, 223, 1)',
+      'rgba(0, 0, 191, 1)',
+      'rgba(0, 0, 159, 1)',
+      'rgba(0, 0, 127, 1)',
+      'rgba(63, 0, 91, 1)',
+      'rgba(127, 0, 63, 1)',
+      'rgba(191, 0, 31, 1)',
+      'rgba(255, 0, 0, 1)'
+    ] 
+    var heatmap1 = new google.maps.visualization.HeatmapLayer({
+      data: pointArrayco,
+      dissipating: true,
+      maxIntensity: 10,
+      gradient: gradi,
+      radius: 15,
+      opacity: 1.0,
+      map: this.map
+    });
+    // this.populateData(pointArray);
   }
 
   async CO2(){
@@ -84,15 +106,22 @@ export class JSService {
     this.populateData(pointArray);
   }
 
-  async Ace(){
-    this.poldata = [];
-    let pointArray = new google.maps.MVCArray(this.poldata);
-    await this.doc.subscribe((value)=>{
+  Ace(){
+    let pointArrayace = new google.maps.MVCArray([]);
+     this.doc.subscribe((value)=>{
       for(let x of value){
-        pointArray.push({location: new google.maps.LatLng(x.payload.doc.data().lat,x.payload.doc.data().lon), weight: x.payload.doc.data().ace});
+        pointArrayace.push({location: new google.maps.LatLng(x.payload.doc.data().lat,x.payload.doc.data().lon), weight: x.payload.doc.data().ace});
       }
     });
-    this.populateData(pointArray);
+    var heatmap2 = new google.maps.visualization.HeatmapLayer({
+      data: pointArrayace,
+      dissipating: true,
+      maxIntensity: 10,
+      radius: 15,
+      opacity: 1.0,
+      map: this.map
+    });
+    // this.populateData(pointArray);
   }
 
 
@@ -143,6 +172,10 @@ export class JSService {
 
 
     this.map = new google.maps.Map(element.nativeElement, mapOptions);
+
+
+    this.CO()
+    this.Ace()
       // This defines the heatmap we see, if dissipating is set false and radius is low, we see nothing. bump radius up and you'll start seeing the circles
   }
 }

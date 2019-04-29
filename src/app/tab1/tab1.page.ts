@@ -38,19 +38,19 @@ export class Tab1Page implements OnInit{
     this.jsservice.CO2();
   }
   setHMNH4(){
+    this.jsservice.NH4();
 
   }
   setHMEth(){
-
+    this.jsservice.Eth();
   }
   setHMTol(){
-    this.jsservice.Ace();
+    this.jsservice.Tol();
+
   }
   setHMAce(){
-
+    this.jsservice.Ace();
   }
-
-
 
 
   async ngOnInit() {
