@@ -15,8 +15,11 @@ import { NativeService } from './services/native/native.service';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 
+import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+
 
 export const fireconfig = {
     apiKey: "AIzaSyAl3acCFwURPMeDKi7yzkKl3K9n8SZYx2s",
@@ -31,7 +34,8 @@ export const fireconfig = {
   declarations: [AppComponent],
   entryComponents: [],
   imports: [AppRoutingModule,AngularFireModule.initializeApp(fireconfig),
-    AngularFirestoreModule, BrowserModule, IonicModule.forRoot(), ],
+    AngularFirestoreModule, BrowserModule, IonicModule.forRoot(), LeafletModule.forRoot(),
+  ],
 providers: [
     StatusBar,
     SplashScreen,

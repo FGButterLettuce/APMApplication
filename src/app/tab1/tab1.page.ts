@@ -30,27 +30,27 @@ export class Tab1Page implements OnInit{
 
   }
 
-  setHMCO(){
-    this.jsservice.CO();
-  }
+  // setHMCO(){
+  //   this.jsservice.CO();
+  // }
 
-  setHMCO2(){
-    this.jsservice.CO2();
-  }
-  setHMNH4(){
-    this.jsservice.NH4();
+  // setHMCO2(){
+  //   this.jsservice.CO2();
+  // }
+  // setHMNH4(){
+  //   this.jsservice.NH4();
 
-  }
-  setHMEth(){
-    this.jsservice.Eth();
-  }
-  setHMTol(){
-    this.jsservice.Tol();
+  // }
+  // setHMEth(){
+  //   this.jsservice.Eth();
+  // }
+  // setHMTol(){
+  //   this.jsservice.Tol();
 
-  }
-  setHMAce(){
-    this.jsservice.Ace();
-  }
+  // }
+  // setHMAce(){
+  //   this.jsservice.Ace();
+  // }
 
 
   async ngOnInit() {

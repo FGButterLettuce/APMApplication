@@ -1,116 +1,113 @@
-import { Injectable } from '@angular/core';
+import { Injectable, ElementRef } from '@angular/core';
 
-
+import 'heatmap.js'
+import 'heatmap.js/plugins/gmaps-heatmap';
+import 'leaflet'
+import 'google-maps'
+import 'leaflet.heat'
 declare var google;
-
-
+declare var L: any;
+declare var HeatmapOverlay;
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class JSService {
 
-  map:any;
+  map: any;
 
-  poldata:[]; //for use by heatmaps
+  poldata: []; //for use by heatmaps
 
   doc;
-  
-//  campaign{
-//    start:Date,
-//    end: Date,
-//    org: String
-//    };
- 
+  loc;
+  elmt: ElementRef;
+  //  campaign{
+  //    start:Date,
+  //    end: Date,
+  //    org: String
+  //    };
 
-  constructor() { 
+
+  constructor() {
 
   }
 
-  CO(){
-    let pointArrayco = new google.maps.MVCArray([]);
-     this.doc.subscribe((value)=>{
-      for(let x of value){
-        pointArrayco.push({location: new google.maps.LatLng(x.payload.doc.data().lat,x.payload.doc.data().lon), weight: x.payload.doc.data().co});
+
+ async heatmapc() {
+    let mapOptions = {
+      center: new google.maps.LatLng(this.loc.latitude, this.loc.longitude),
+      zoom: 15,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false
+    };
+    var nmap = new google.maps.Map(this.elmt.nativeElement, mapOptions);
+
+    var heatmap = new HeatmapOverlay(nmap, 
+      {
+        // radius should be small ONLY if scaleRadius is true (or small radius is intended)
+        "radius": 2,
+        "maxOpacity": 1, 
+        // scales the radius based on map zoom
+        "scaleRadius": true, 
+        // if set to false the heatmap uses the global maximum for colorization
+        // if activated: uses the data maximum within the current map boundaries 
+        //   (there will always be a red spot with useLocalExtremas true)
+        "useLocalExtrema": true,
+        // which field name in your data represents the latitude - default "lat"
+        latField: 'lat',
+        // which field name in your data represents the longitude - default "lng"
+        lngField: 'lng',
+        // which field name in your data represents the data value - default "value"
+        valueField: 'weight'
+      }
+    );
+    // this.map = L.map("map").fitWorld();
+    // L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+    //   maxZoom: 20,
+    //   subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    // }).addTo(this.map);
+    // this.map.locate({
+    //   setView: true,
+    //   maxZoom: 10
+    // }).on('locationfound', (e) => {
+    //   let markerGroup = L.featureGroup();
+    //   let marker: any = L.marker([e.latitude, e.longitude]).on('click', () => {
+    //     alert('Marker clicked');
+    //   })
+    //   markerGroup.addLayer(marker);
+    //   this.map.addLayer(markerGroup);
+    // }).on('locationerror', (err) => {
+    //   alert(err.message);
+    // });
+    let array = [];
+    await this.doc.subscribe((value) => {
+      for (let x of value) {
+        array.push([[Number(x.payload.doc.data().lat), Number(x.payload.doc.data().lon), x.payload.doc.data().ace]])
       }
     });
-    var gradi = [
-      'rgba(0, 255, 255, 0)',
-      'rgba(0, 255, 255, 1)',
-      'rgba(0, 191, 255, 1)',
-      'rgba(0, 127, 255, 1)',
-      'rgba(0, 63, 255, 1)',
-      'rgba(0, 0, 255, 1)',
-      'rgba(0, 0, 223, 1)',
-      'rgba(0, 0, 191, 1)',
-      'rgba(0, 0, 159, 1)',
-      'rgba(0, 0, 127, 1)',
-      'rgba(63, 0, 91, 1)',
-      'rgba(127, 0, 63, 1)',
-      'rgba(191, 0, 31, 1)',
-      'rgba(255, 0, 0, 1)'
-    ] 
-    var heatmap1 = new google.maps.visualization.HeatmapLayer({
-      data: pointArrayco,
-      dissipating: true,
-      maxIntensity: 10,
-      gradient: gradi,
-      radius: 15,
-      opacity: 1.0,
-      map: this.map
-    });
-    // this.populateData(pointArray);
-  }
+    console.log(array);
+    // var heat = L.heatLayer(array, {
+    //   radius: 20,
+    //   blur: 15,
+    //   maxZoom: 17,
+    // }).addTo(this.map);
 
-  async CO2(){
-    this.poldata = [];
-    let pointArray = new google.maps.MVCArray(this.poldata);
-    await this.doc.subscribe((value)=>{
-      for(let x of value){
-        pointArray.push({location: new google.maps.LatLng(x.payload.doc.data().lat,x.payload.doc.data().lon), weight: x.payload.doc.data().co2});
-      }
-    });
-    this.populateData(pointArray);
-  }
 
-  async NH4(){
-    this.poldata = [];
-    let pointArray = new google.maps.MVCArray(this.poldata);
-    await this.doc.subscribe((value)=>{
-      for(let x of value){
-        pointArray.push({location: new google.maps.LatLng(x.payload.doc.data().lat,x.payload.doc.data().lon), weight: x.payload.doc.data().nh4});
-      }
-    });
-    this.populateData(pointArray);
-  }
+    var testdata = {
+      max : 500,
+      data: array
+    }
+    heatmap.setData(testdata);
 
-  async Eth(){
-    this.poldata = [];
-    let pointArray = new google.maps.MVCArray(this.poldata);
-    await this.doc.subscribe((value)=>{
-      for(let x of value){
-        pointArray.push({location: new google.maps.LatLng(x.payload.doc.data().lat,x.payload.doc.data().lon), weight: x.payload.doc.data().eth});
-      }
-    });
-    this.populateData(pointArray);
   }
-
-  async Tol(){
-    this.poldata = [];
-    let pointArray = new google.maps.MVCArray(this.poldata);
-    await this.doc.subscribe((value)=>{
-      for(let x of value){
-        pointArray.push({location: new google.maps.LatLng(x.payload.doc.data().lat,x.payload.doc.data().lon), weight: x.payload.doc.data().tol});
-      }
-    });
-    this.populateData(pointArray);
-  }
-
-  Ace(){
+  Ace() {
     let pointArrayace = new google.maps.MVCArray([]);
-     this.doc.subscribe((value)=>{
-      for(let x of value){
-        pointArrayace.push({location: new google.maps.LatLng(x.payload.doc.data().lat,x.payload.doc.data().lon), weight: x.payload.doc.data().ace});
+    this.doc.subscribe((value) => {
+      for (let x of value) {
+        pointArrayace.push({ location: new google.maps.LatLng(x.payload.doc.data().lat, x.payload.doc.data().lon), weight: x.payload.doc.data().ace });
       }
     });
     var heatmap2 = new google.maps.visualization.HeatmapLayer({
@@ -126,9 +123,9 @@ export class JSService {
 
 
 
-  
-  populateData(pointArray){
-    
+
+  populateData(pointArray) {
+
     var heatmap = new google.maps.visualization.HeatmapLayer({
       data: pointArray,
       dissipating: true,
@@ -146,9 +143,11 @@ export class JSService {
 
   }
 
-  async init(location,element,doc){
+  async init(location, element, doc) {
     this.doc = doc;
-    let latLng= new google.maps.LatLng(location.latitude, location.longitude);
+    this.loc = location;
+    this.elmt = element;
+    let latLng = new google.maps.LatLng(location.latitude, location.longitude);
     console.log(doc);
     let mapOptions = {
       center: latLng,
@@ -165,17 +164,16 @@ export class JSService {
     //   {location: new google.maps.LatLng(25.311251, 55.485886), weight: 5}
     // ]; 
     //format of weighted heatmap data (currently showing 3 points on the road outside uni)
-    
+
     // let pointArray = new google.maps.MVCArray(heatMapData);
 
 
 
 
-    this.map = new google.maps.Map(element.nativeElement, mapOptions);
+    // this.map = new google.maps.Map(element.nativeElement, mapOptions);
 
 
-    this.CO()
-    this.Ace()
-      // This defines the heatmap we see, if dissipating is set false and radius is low, we see nothing. bump radius up and you'll start seeing the circles
+    this.heatmapc();
+    // This defines the heatmap we see, if dissipating is set false and radius is low, we see nothing. bump radius up and you'll start seeing the circles
   }
 }
