@@ -6,6 +6,14 @@ import { JSService } from '../services/jsmap/js.service';
 import { AngularFirestoreCollection, AngularFirestore } from '@angular/fire/firestore';
 import { Dataline } from '../classes/dataline';
 
+
+import * as L from 'leaflet';
+import 'heatmap.js'
+import HeatmapOverlay from 'heatmap.js/plugins/leaflet-heatmap'
+import { DonutService } from '../services/donut.service';
+
+
+
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
@@ -13,44 +21,266 @@ import { Dataline } from '../classes/dataline';
 })
 
 
-export class Tab1Page implements OnInit{
+export class Tab1Page implements OnInit {
 
-  @ViewChild('map') mapElement: ElementRef; // for #map modifying based on chosen service
+  @ViewChild('map') public mapElement: ElementRef; // for #map modifying based on chosen service
+
 
   location: {
     latitude: number,
     longitude: number
   };
-
+c
   //firestore
   collection: AngularFirestoreCollection;
   doc: any;
-
-  constructor(private platform: Platform, public geolocation: Geolocation, public mapservice: MapService,public jsservice: JSService, public afs: AngularFirestore){
+  heatmap;
+  constructor(public donut:DonutService, private platform: Platform, public geolocation: Geolocation, public mapservice: MapService, public jsservice: JSService, public afs: AngularFirestore) {
 
   }
 
-  // setHMCO(){
-  //   this.jsservice.CO();
-  // }
 
-  // setHMCO2(){
-  //   this.jsservice.CO2();
-  // }
-  // setHMNH4(){
-  //   this.jsservice.NH4();
+  setHMCO() {
+    var array = [];
+    var testdata;
 
-  // }
-  // setHMEth(){
-  //   this.jsservice.Eth();
-  // }
-  // setHMTol(){
-  //   this.jsservice.Tol();
+    var cfgco = {
+      "radius": 40,
+      "maxOpacity": .8,
+      "scaleRadius": false,
+      "useLocalExtrema": true,
+      "gradient": {
+        '.6': 'cyan',
+        '.7': 'blue',
+        '.9': 'red'
+      },
+      latField: 'lat',
+      lngField: 'lng',
+      valueField: 'count'
+    };
+    this.heatmap.reconfigure(cfgco);
+    this.doc.subscribe((value) => {
+      for (let i = 0; i < value.data().lat_arr.length; i++) {
+        array.push({ lat: value.data().lat_arr[i], lng: value.data().long_arr[i], count: value.data().ace_arr[i] })
+      }
+    });
 
-  // }
-  // setHMAce(){
-  //   this.jsservice.Ace();
-  // }
+    setTimeout(() => {
+
+      testdata = {
+        max: 1000,
+        // min : 0,
+        data: array
+      }
+    }, 500);
+
+    setTimeout(() => {
+      this.heatmap.setData(testdata);
+    }, 1000);
+  }
+
+  setHMCO2() {
+    var array = [];
+    var testdata;
+
+    var cfgco2 = {
+      "radius": 40,
+      "maxOpacity": .8,
+      "scaleRadius": false,
+      "useLocalExtrema": true,
+      "gradient": {
+        '.6': 'yellow',
+        '.7': 'orange',
+        '.9': 'red'
+      },
+      latField: 'lat',
+      lngField: 'lng',
+      valueField: 'count'
+    };
+    this.heatmap.reconfigure(cfgco2);
+
+    this.doc.subscribe((value) => {
+      for (let i = 0; i < value.data().lat_arr.length; i++) {
+        array.push({ lat: value.data().lat_arr[i], lng: value.data().long_arr[i], count: value.data().co2_arr[i] })
+      }
+    });
+
+    setTimeout(() => {
+
+      testdata = {
+        max: 1000,
+        // min : 0,
+        data: array
+      }
+    }, 500);
+
+    setTimeout(() => {
+      this.heatmap.setData(testdata);
+    }, 1000);
+  }
+
+  setHMNH4() {
+    var array = [];
+    var testdata;
+
+    var cfgnh4 = {
+      "radius": 40,
+      "maxOpacity": .8,
+      "scaleRadius": false,
+      "useLocalExtrema": true,
+      "gradient": {
+        '.6': 'magenta',
+        '.7': 'purple',
+        '.9': 'red'
+      },
+      latField: 'lat',
+      lngField: 'lng',
+      valueField: 'count'
+    };
+    this.heatmap.reconfigure(cfgnh4);
+
+    this.doc.subscribe((value) => {
+      console.log(value.data())
+      for (let i = 0; i < value.data().lat_arr.length; i++) {
+        array.push({ lat: value.data().lat_arr[i], lng: value.data().long_arr[i], count: value.data().nh4_arr[i] })
+      }
+    });
+
+    setTimeout(() => {
+
+      testdata = {
+        max: 1000,
+        // min : 0,
+        data: array
+      }
+    }, 500);
+
+    setTimeout(() => {
+      this.heatmap.setData(testdata);
+    }, 1000);
+  }
+
+  setHMEth() {
+    var array = [];
+    var testdata;
+
+    var cfgeth = {
+      "radius": 40,
+      "maxOpacity": .8,
+      "scaleRadius": false,
+      "useLocalExtrema": true,
+      "gradient": {
+        '.6': 'pink',
+        '.7': 'purple',
+        '.9': 'red'
+      },
+      latField: 'lat',
+      lngField: 'lng',
+      valueField: 'count'
+    };
+    this.heatmap.reconfigure(cfgeth);
+
+    this.doc.subscribe((value) => {
+      for (let i = 0; i < value.data().lat_arr.length; i++) {
+        array.push({ lat: value.data().lat_arr[i], lng: value.data().long_arr[i], count: value.data().eth_arr[i] })
+      }
+    });
+
+    setTimeout(() => {
+
+      testdata = {
+        max: 1000,
+        data: array
+      }
+    }, 500);
+
+    setTimeout(() => {
+      this.heatmap.setData(testdata);
+    }, 1000);
+  }
+
+  setHMAce() {
+    var array = [];
+    var testdata;
+
+    var cfgace = {
+      "radius": 40,
+      "maxOpacity": .8,
+      "scaleRadius": false,
+      "useLocalExtrema": true,
+      "gradient": {
+        '.6': 'white',
+        '.7': 'yellow',
+        '.9': 'red'
+      },
+      latField: 'lat',
+      lngField: 'lng',
+      valueField: 'count'
+    };
+    this.heatmap.reconfigure(cfgace);
+
+    this.doc.subscribe((value) => {
+      for (let i = 0; i < value.data().lat_arr.length; i++) {
+        array.push({ lat: value.data().lat_arr[i], lng: value.data().long_arr[i], count: value.data().ace_arr[i] })
+      }
+    });
+
+    setTimeout(() => {
+
+      testdata = {
+        max: 1000,
+        // min : 0,
+        data: array
+      }
+    }, 500);
+
+    setTimeout(() => {
+      this.heatmap.setData(testdata);
+    }, 1000);
+  }
+
+  setHMTol() {
+    var array = [];
+    var testdata;
+
+    var cfgtol = {
+      "radius": 40,
+      "maxOpacity": .8,
+      "scaleRadius": false,
+      "useLocalExtrema": true,
+      "gradient": {
+        '.6': 'blue',
+        '.7': 'red',
+        '.9': 'white'
+      },
+      latField: 'lat',
+      lngField: 'lng',
+      valueField: 'count'
+    };
+    this.heatmap.reconfigure(cfgtol);
+
+    this.doc.subscribe((value) => {
+      for (let i = 0; i < value.data().lat_arr.length; i++) {
+        array.push({ lat: value.data().lat_arr[i], lng: value.data().long_arr[i], count: value.data().tol_arr[i] })
+      }
+    });
+
+    setTimeout(() => {
+
+      testdata = {
+        max: 1000,
+        // min : 0,
+        data: array
+      }
+    }, 500);
+
+    setTimeout(() => {
+      this.heatmap.setData(testdata);
+    }, 1000);
+  }
+
+
+
 
 
   async ngOnInit() {
@@ -59,12 +289,14 @@ export class Tab1Page implements OnInit{
 
       this.loadMap();
 
-    }, 3000);  } // allows for init time of JS map(slower), for native we can scrap the timer BUT we only use JS
-  
-  loadMap(){
-    let locopt={
+    }, 1500); // allows for init time of JS map(slower), for native we can scrap the timer BUT we only use JS
+
+  }
+
+  loadMap() {
+    let locopt = {
       enableHighAccuracy: true,
-      timeout: 25000     
+      timeout: 25000
     }
 
     this.geolocation.getCurrentPosition(locopt).then((position) => {
@@ -74,19 +306,41 @@ export class Tab1Page implements OnInit{
         longitude: position.coords.longitude
       };
 
-      this.collection = this.afs.collection<Dataline>('weightage');
-      this.doc = this.collection.snapshotChanges();
-      this.jsservice.init(this.location, this.mapElement,this.doc);
+      this.collection = this.afs.collection<Dataline>('cluster');
+      this.doc = this.collection.doc('clustering').get();
+      this.mapset();
+    }).catch((error) => {
+      console.log('Error getting location', error);
+    });
+  }
+  
+  mapset() {
+    var cfg = {
+      "radius": 20,
+      "maxOpacity": .8,
+      "scaleRadius": false,
+      "useLocalExtrema": true,
+      latField: 'lat',
+      lngField: 'lng',
+      valueField: 'count'
+    };
 
+    this.heatmap = new HeatmapOverlay(cfg);
 
-       // to use native cordova version change js to native 
-      //DONT MESS WITH IT IF YOU DONT KNOW WHAT YOURE DOING, it could break the build and i dont want to deal with that - niru
-      // native = faster but bunch of features missing / js = feature filled but slower 
-      
-      // this calls mapservice init() --> depending on string goes to either nativeserv or jsserv--> init() in jsserv/nativeserv and plops out nice baby map
-      // we use js as it has heatmap functionalities
-     }).catch((error) => {
-       console.log('Error getting location', error);
-     });
+    var baseLayer = L.tileLayer(
+      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Google Maps JavaScript API © <a href="http://cloudmade.com">CloudMade</a>',
+        maxZoom: 20
+      }
+    );
+
+    var center = new L.LatLng(this.location.latitude, this.location.longitude)
+
+    var map = new L.Map(this.mapElement.nativeElement, {
+      center: center,
+      zoom: 15,
+      layers: [baseLayer, this.heatmap]
+    });
   }
 }
+

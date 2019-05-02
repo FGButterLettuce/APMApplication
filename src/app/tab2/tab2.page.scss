@@ -11,6 +11,16 @@
             font-weight: bold;
         }
 
+
     }
 
+}
+#lineCanvas{
+   height: 500px;
+}
+ion-card{
+    display: flex;
+    flex-direction: column;
+    // height:600px !important;
+    // width:100%;
 }

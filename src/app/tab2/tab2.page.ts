@@ -1,5 +1,11 @@
 import { Component, ViewChild, OnInit, ElementRef } from '@angular/core';
 import { Chart } from 'chart.js';
+import { AngularFirestoreCollection, AngularFirestore } from '@angular/fire/firestore';
+import { LoadingController } from '@ionic/angular';
+
+import * as moment from 'moment';
+import { DonutService } from '../services/donut.service';
+
 
 @Component({
   selector: 'app-tab2',
@@ -14,17 +20,73 @@ export class Tab2Page implements OnInit {
   doughnutChart: any;
   lineChart: any;
 
-  Bardata:any
-  
-  constructor() { }
+  linecollection: AngularFirestoreCollection;
+  linedoc;
 
-  ngOnInit() {
+
+  lineArrayace;
+  lineArrayco;
+  lineArrayco2;
+  lineArraynh4;
+  lineArraytol;
+  lineArrayeth;
+  lineArrayhum;
+  lineArraytem;
+  start:Boolean;  
+  donutArray;
+  loading;
+  constructor(public afs: AngularFirestore,public donut: DonutService, public loadingController: LoadingController) {
+    console.log(donut.returnArr())
+  }
+
+  async presentLoading() {
+    this.loading = await this.loadingController.create({
+      message: 'Crunching Numbers',
+      spinner: 'bubbles'
+    });
+    await this.loading.present();
+
+    // const { role, data } = await this.loading.onDidDismiss();
+
+    console.log('Loading dismissed!');
+  }
+
+
+  async ngOnInit() {
+    this.linecollection = this.afs.collection('regression');
+    this.linedoc = this.linecollection.doc('reg').get();
+    this.lineArrayace = [];
+    this.lineArrayco = [];
+    this.lineArrayco2 = [];
+    this.lineArraynh4 = [];
+    this.lineArraytol = [];
+    this.lineArrayeth = [];
+    this.lineArrayhum = [];
+    this.lineArraytem = [];
+    console.log("babyyy sharkkk")
+    this.presentLoading();
+    this.linedoc.subscribe((value) => {
+      for (let i = 0; i < value.data().time.length; i++) {
+        this.lineArrayace.push({ x: moment(value.data().time[i], "HH:mm:ss").format("HH:mm"), y: value.data().ace[i] })
+        this.lineArrayco.push({ x: moment(value.data().time[i], "HH:mm:ss").format("HH:mm"), y: value.data().co[i] })
+        this.lineArrayco2.push({ x: moment(value.data().time[i], "HH:mm:ss").format("HH:mm"), y: value.data().co2[i] })
+        this.lineArraynh4.push({ x: moment(value.data().time[i], "HH:mm:ss").format("HH:mm"), y: value.data().nh4[i] })
+        this.lineArraytol.push({ x: moment(value.data().time[i], "HH:mm:ss").format("HH:mm"), y: value.data().tol[i] })
+        this.lineArrayeth.push({ x: moment(value.data().time[i], "HH:mm:ss").format("HH:mm"), y: value.data().eth[i] })
+        this.lineArrayhum.push({ x: moment(value.data().time[i], "HH:mm:ss").format("HH:mm"), y: value.data().humidity[i] })
+        console.log("do")
+      }
+      this.loading.dismiss();
+      this.startchart()
+    });
+  }
+
+  startchart(){
     setTimeout(() => {
-
       this.doughnutChart = this.getDoughnutChart();
       this.lineChart = this.getLineChart();
 
-    }, 3000);
+    }, 1000);
   }
 
   getChart(context, chartType, data, options?) {
@@ -37,72 +99,267 @@ export class Tab2Page implements OnInit {
 
   getDoughnutChart() {
     let data = {
-      labels: ["Red", "Brown", "Blue", "Yellow", "Green", "Purple", "Orange"],
+      labels: ["CO", "CO\u2082", "NH\u2084", "Ethanol", "Acetone", "Toluene"],
       datasets: [{
-        label: '# of Votes',
-        data: [12, 19, 3, 5, 2, 3],
+        label: 'Proportions',
+        data: this.donut.donutArray,
         backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(244, 164, 96, 0.8)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)'
-        ],
-        hoverBackgroundColor: ["#FF6384", "#551a8b", "#36A2EB", "#FFCE56", "#FF6384", "#36A2EB", "#FFCE56"]
+          'rgb(255, 102, 102)',
+          'rgb(204, 51, 153)',
+          'rgb(0, 204, 102)',
+          'rgb(255, 153, 0)',
+          'rgb(51, 153, 255)',
+          'rgb(0, 102, 153)'
+        ]
       }]
     };
-
     return this.getChart(this.doughnutCanvas.nativeElement, "doughnut", data);
   }
 
   getLineChart() {
+    var labels = this.lineArrayace.map(e => e.x);
     var data = {
-      labels: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],
+      labels: labels,
       datasets: [
         {
-          label: "Initial Dataset",
+          label: "Acetone",
           fill: false,
           lineTension: 0.1,
-          backgroundColor: "rgba(75,192,192,0.4)",
-          borderColor: "rgba(75,192,192,1)",
+          backgroundColor: "rgb(51, 153, 255)",
+          borderColor: "rgb(51, 153, 255)",
           borderCapStyle: 'butt',
           borderDash: [],
           borderDashOffset: 0.0,
           borderJoinStyle: 'miter',
-          pointBorderColor: "rgba(75,192,192,1)",
+          pointBorderColor: "rgb(51, 153, 255)",
           pointBackgroundColor: "#fff",
           pointBorderWidth: 1,
+          options: {
+            scales: {
+              xAxes: [{
+                type: 'time',
+                time: {
+                  displayFormats: {
+                    quarter: 'h:mm'
+                  }
+                }
+              }]
+            }
+          },
           pointHoverRadius: 5,
-          pointHoverBackgroundColor: "rgba(75,192,192,1)",
-          pointHoverBorderColor: "rgba(220,220,220,1)",
+          pointHoverBackgroundColor: "rgb(51, 153, 255)",
+          pointHoverBorderColor: "rgb(51, 153, 255)",
           pointHoverBorderWidth: 2,
           pointRadius: 1,
           pointHitRadius: 10,
-            data: [{x: 2,y: 59}, {x: 2.3, y: 81},{x: 2.9, y: 55},{x: 4,y: 59}, {x: 5.2, y: 81},{x: 5.8, y: 55},{x: 6.5,y: 59}, {x: 8.3, y: 81},{x: 56, y: 55},{x: 65,y: 59}, {x: 80, y: 81},{x: 56, y: 55},{x: 65,y: 59}, {x: 80, y: 81},{x: 56, y: 55},{x: 65,y: 59}, {x: 80, y: 81},{x: 56, y: 55},{x: 65,y: 59}, {x: 80, y: 81},{x: 56, y: 55},{x: 65,y: 59}, {x: 80, y: 81},{x: 56, y: 55},{x: 65,y: 59}, {x: 80, y: 81},{x: 56, y: 55},{x: 65,y: 59}, {x: 80, y: 81},{x: 56, y: 55},{x: 65,y: 59}, {x: 80, y: 81},{x: 56, y: 55},{x: 65,y: 59}, {x: 80, y: 81},{x: 56, y: 55},{x: 65,y: 59}, {x: 80, y: 81},{x: 56, y: 55},{x: 65,y: 59}, {x: 80, y: 81},{x: 56, y: 55},{x: 65,y: 59}, {x: 80, y: 81},{x: 56, y: 55}],
+          data: this.lineArrayace,
           spanGaps: false,
         },
         {
-          label: "Final Dataset",
+          label: "Carbon Monoxide",
+          options: {
+
+            scales: {
+              xAxes: [{
+                type: 'time',
+                time: {
+                  displayFormats: {
+                    quarter: 'h:mm'
+                  }
+                }
+              }]
+            }
+          },
           fill: false,
           lineTension: 0.1,
-          backgroundColor: "rgba(175,92,192,0.4)",
-          borderColor: "rgba(31,156,156,1)",
+          backgroundColor: "rgb(255, 102, 102)",
+          borderColor: "rgb(255, 102, 102)",
           borderCapStyle: 'butt',
-          borderDash: [5, 8],
+          borderDash: [],
           borderDashOffset: 0.0,
           borderJoinStyle: 'miter',
-          pointBorderColor: "rgba(31,156,156,1)",
+          pointBorderColor: "rgb(255, 102, 102)",
           pointBackgroundColor: "#fff",
           pointBorderWidth: 1,
           pointHoverRadius: 5,
-          pointHoverBackgroundColor: "rgba(31,156,156,1)",
-          pointHoverBorderColor: "rgba(220,220,220,1)",
+          pointHoverBackgroundColor: "rgb(255, 102, 102)",
+          pointHoverBorderColor: "rgb(255, 102, 102)",
           pointHoverBorderWidth: 2,
           pointRadius: 1,
           pointHitRadius: 10,
-          data: [15, 39, 50, 81, 51, 55, 30, 70],
+          data: this.lineArrayco,
+          spanGaps: false,
+        },
+        {
+          label: "Carbon Dioxide",
+          fill: false,
+          lineTension: 0.1,
+          backgroundColor: "rgb(204, 51, 153)",
+          borderColor: "rgb(204, 51, 153)",
+          borderCapStyle: 'butt',
+          borderDash: [],
+          borderDashOffset: 0.0,
+          borderJoinStyle: 'miter',
+          options: {
+            scales: {
+              xAxes: [{
+                type: 'time',
+                time: {
+                  displayFormats: {
+                    quarter: 'h:mm'
+                  }
+                }
+              }]
+            }
+          },
+          pointBorderColor: "rgb(204, 51, 153)",
+          pointBackgroundColor: "#fff",
+          pointBorderWidth: 1,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: "rgb(204, 51, 153)",
+          pointHoverBorderColor: "rgb(204, 51, 153)",
+          pointHoverBorderWidth: 2,
+          pointRadius: 1,
+          pointHitRadius: 10,
+          data: this.lineArrayco2,
+          spanGaps: false,
+        },
+        {
+          label: "Ammonia",
+          fill: false,
+          lineTension: 0.1,
+          backgroundColor: "rgb(0, 204, 102)",
+          borderColor: "rgb(0, 204, 102)",
+          borderCapStyle: 'butt',
+          borderDash: [],
+          borderDashOffset: 0.0,
+          options: {
+            scales: {
+              xAxes: [{
+                type: 'time',
+                time: {
+                  displayFormats: {
+                    quarter: 'h:mm'
+                  }
+                }
+              }]
+            }
+          },
+          borderJoinStyle: 'miter',
+          pointBorderColor: "rgb(0, 204, 102)",
+          pointBackgroundColor: "#fff",
+          pointBorderWidth: 1,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: "rgb(0, 204, 102)",
+          pointHoverBorderColor: "rgb(0, 204, 102)",
+          pointHoverBorderWidth: 2,
+          pointRadius: 1,
+          pointHitRadius: 10,
+          data: this.lineArraynh4,
+          spanGaps: false,
+        },
+        {
+          label: "Ethanol",
+          fill: false,
+          lineTension: 0.1,
+          backgroundColor: "rgb(255, 153, 0)",
+          borderColor: "rgb(255, 153, 0)",
+          borderCapStyle: 'butt',
+          borderDash: [],
+          borderDashOffset: 0.0,
+          options: {
+            scales: {
+              xAxes: [{
+                type: 'time',
+                time: {
+                  displayFormats: {
+                    quarter: 'h:mm'
+                  }
+                }
+              }]
+            }
+          },
+          borderJoinStyle: 'miter',
+          pointBorderColor: "rgb(255, 153, 0)",
+          pointBackgroundColor: "#fff",
+          pointBorderWidth: 1,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: "rgb(255, 153, 0)",
+          pointHoverBorderColor: "rgb(255, 153, 0)",
+          pointHoverBorderWidth: 2,
+          pointRadius: 1,
+          pointHitRadius: 10,
+          data: this.lineArrayeth,
+          spanGaps: false,
+        },
+        {
+          label: "Toluene",
+          fill: false,
+          lineTension: 0.1,
+          backgroundColor: "rgb(0, 102, 153)",
+          borderColor: "rgb(0, 102, 153)",
+          borderCapStyle: 'butt',
+          borderDash: [],
+          borderDashOffset: 0.0,
+          options: {
+            scales: {
+              xAxes: [{
+                type: 'time',
+                time: {
+                  displayFormats: {
+                    quarter: 'h:mm'
+                  }
+                }
+              }]
+            }
+          },
+          borderJoinStyle: 'miter',
+          pointBorderColor: "rgb(0, 102, 153)",
+          pointBackgroundColor: "#fff",
+          pointBorderWidth: 1,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: "rgb(0, 102, 153)",
+          pointHoverBorderColor: "rgb(0, 102, 153)",
+          pointHoverBorderWidth: 2,
+          pointRadius: 1,
+          pointHitRadius: 10,
+          data: this.lineArraytol,
+          spanGaps: false,
+        },
+        {
+          label: "Humidity",
+          fill: false,
+          lineTension: 0.1,
+          backgroundColor: "rgb(0, 102, 153)",
+          borderColor: "rgb(0, 102, 153)",
+          borderCapStyle: 'butt',
+          borderDash: [],
+          borderDashOffset: 0.0,
+          options: {
+            // responsive: true,
+            // maintainAspectRatio: false,
+            scales: {
+              xAxes: [{
+                type: 'time',
+                time: {
+                  displayFormats: {
+                    quarter: 'h:mm'
+                  }
+                }
+              }]
+            }
+          },
+          borderJoinStyle: 'miter',
+          pointBorderColor: "rgb(0, 102, 153)",
+          pointBackgroundColor: "#fff",
+          pointBorderWidth: 1,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: "rgb(0, 102, 153)",
+          pointHoverBorderColor: "rgb(0, 102, 153)",
+          pointHoverBorderWidth: 2,
+          pointRadius: 1,
+          pointHitRadius: 10,
+          data: this.lineArrayhum,
           spanGaps: false,
         }
       ]
